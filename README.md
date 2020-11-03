@@ -36,6 +36,7 @@ git clone https://github.com/VictorManhani/polingua.git && cd polingua
 py main.py
 ``
 
+### Imagens deste lindo Projetinho:
 <p align="left">
   <img src=".github/wordboard.png" width="250" alt="Wordboard">
   <img src=".github/home.png" width="250" alt="Home">
