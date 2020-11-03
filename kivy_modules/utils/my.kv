@@ -1,0 +1,26 @@
+Screen:
+	name: 'login'
+	FlexLayout:
+		bg_color: [0.384, 0.118, 0.420, 1]
+		Image:
+			source: "kivy_modules/utils/img/logo.png"
+			size_hint: [1,.1]
+		FlexButton:
+            background_normal: "kivy_modules/utils/img/down.png"
+            background_down: "kivy_modules/utils/img/up.png"
+			size_hint: [1,.1]
+			bg_color: [0,0,0,0]
+			background_color: [0,0,0,0]
+			bg_color_normal: [0,0,0,0]
+			bg_color_press: [0,0,0,0]
+			on_release:
+				print("hello world")
+		FlexButton:
+			text: 'Sign Up'
+			size_hint: [1,.1]
+		FlexButton:
+			text: 'Login'
+			size_hint: [1,.1]
+		FlexWidget:
+			size_hint: [1,.6]
+			bg_color: [0,0,0,0]
