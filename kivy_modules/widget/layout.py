@@ -12,19 +12,22 @@ from kivy.properties import (
 
 class FlexLayout(BoxLayout):
 	bg_color = ListProperty([1,1,1,1])
-	source = StringProperty('')
+	source = StringProperty("")
+	radius = ListProperty([0])
 
 class NewBoxLayout(BoxLayout):
-	pass
+	radius = ListProperty([0])
 
 class SmartLayout(BoxLayout):
 	background_color = ListProperty([0,0,0,1]) # [.8,.8,.8,1]
+	radius = ListProperty([0])
 
 class SmartIcon(Widget):
 	text = StringProperty('')
 	move = False
 	selected = False
-	
+	radius = ListProperty([0])
+
 	def __init__(self, *args, **kwargs):
 		super().__init__()
 		self.bind(on_touch_down = self.on_press)

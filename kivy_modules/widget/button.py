@@ -24,10 +24,10 @@ except:
 from kivy_modules.icons import md_icons
 
 class FlatButton(Button):
-	pass
+	radius = ListProperty([0])
 
 class ImageButton(Button):
-	pass
+	radius = ListProperty([0])
 
 class IconButton(RectangularRippleBehavior, Button):
 	background_color = [0,0,0,0]
@@ -126,7 +126,7 @@ class FlexButtonDesktop(RectangularRippleBehavior, Button, HoverBehavior):
     background_down = ''
     color = ListProperty([0.0, 0.4471, 0.8235, 1])
     font_size = NumericProperty(sp(20))
-    radius = [10,]
+    radius = ListProperty([0])
     bg_color = ListProperty([1,1,1,1])
     border_color = ListProperty([0.0, 0.4471, 0.8235, 1])
     border_weigth = NumericProperty(dp(1))

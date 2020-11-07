@@ -31,7 +31,6 @@ class Home(Screen):
         self.ids.info.text = f"Word [color=#FF0000FF]{en_text}[/color] that means [color=#008800FF]{self.app.store[en_text]['pt']}[/color] saved with success."
 
 Builder.load_string("""
-#:import reproduce src.helpers.helpers.reproduce
 
 <Home>:
     FlexLayout:
@@ -50,7 +49,7 @@ Builder.load_string("""
                 text: "s"
                 size_hint_x: .2
                 on_release:
-                    reproduce(en.text, "en")
+                    app.reproduce(en.text, "en")
         FlexLayout:
             size_hint: [1,.3]
             orientation: "horizontal"
@@ -62,7 +61,7 @@ Builder.load_string("""
                 text: "s"
                 size_hint_x: .2
                 on_release:
-                    reproduce(pt.text, "pt-br")
+                    app.reproduce(pt.text, "pt-br")
         FlexLabel:
             id: info
             text: "Informations"

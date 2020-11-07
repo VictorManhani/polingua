@@ -18,7 +18,8 @@ class ScrollableLabel(ScrollView):
 	ref_press = ObjectProperty(None)
 	markup = BooleanProperty(False)
 	__events__ = ['on_ref_press']
-	
+	radius = ListProperty([0])
+
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
 		# ~ Clock.schedule_once(self.start, .5)
@@ -51,14 +52,20 @@ class ScrollableLabel(ScrollView):
 
 class FlexLabel(Label):
 	font_size = NumericProperty(sp(20))
-	color = ListProperty([.2,.2,.2,1])
+	fg_color = ListProperty([.1,.1,.1,1])
 	bold = BooleanProperty(False)
+	radius = ListProperty([0])
+	color = fg_color
+
+	def on_fg_color(self, obj, val):
+		self.color = val
 
 # label with a pretty representation of text
 # inspired by pprint module
 class PrettyLabel(ScrollView):
     text = StringProperty('')
     padding = 10
+    radius = ListProperty([0])
 
     def init(self, *args, **kwargs):
         super(PrettyLabel, self).init(*args, **kwargs)

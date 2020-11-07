@@ -8,6 +8,8 @@ from src.helpers.imports import *
 
 from src.routes.manager import Manager
 
+from src.helpers.helpers import reproduce
+
 class PolinguaApp(App):
     title = "Polingua"
     store = None
@@ -36,6 +38,9 @@ class PolinguaApp(App):
         else:
             self.root.transition.direction = direction
         self.root.current = screen
+
+    def reproduce(self, text, lang):
+        reproduce(text, lang)
 
     def build(self):
         return Manager()
