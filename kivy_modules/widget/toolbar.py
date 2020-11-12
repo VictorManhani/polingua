@@ -36,7 +36,7 @@ class FlexToolbar(BoxLayout):
     orientation = StringProperty("horizontal")
     bg_color = ListProperty([1,.5,0,1])
     source = StringProperty("")
-    padding = [dp(0), dp(0), dp(0), dp(0)]
+    padding = ListProperty([0,0,0,0])
     spacing = dp(0)
 
     # ATRIBUTTES
@@ -46,13 +46,13 @@ class FlexToolbar(BoxLayout):
     first_button_icon = StringProperty("arrow-left")
     first_button_text = StringProperty("")
     first_button_disabled = BooleanProperty(False)
-    first_button_callback = lambda parent: print("<- First Button", parent)
+    first_button_callback = None # lambda parent: print("<- First Button", parent)
 
     next_screen = StringProperty("")
     second_button_text = StringProperty("")
     second_button_icon = StringProperty("arrow-right")
     second_button_disabled = BooleanProperty(False)
-    second_button_callback = lambda parent: print("Second Button ->", parent)
+    second_button_callback = None # lambda parent: print("Second Button ->", parent)
 
     # COLORS
     title_color = ListProperty([1,1,1,1])
@@ -113,26 +113,29 @@ class FlexToolbar(BoxLayout):
             )
             self.add_widget(but)
 
-    def func(self, button_callback, screen, obj):
-        if button_callback == None:
-            setattr(self.app.root, "current", screen)
-            setattr(self.app.root.transition, "direction", "right")
-        else:
+    def func(self, button_callback, screen, direction, obj):
+        if button_callback:
             button_callback()
+        else:
+            self.app.switch_screen(screen, direction)
 
     def create_icon_button(
         self, button_icon, fg_color, button_disabled, button_callback, screen):
-        icon = IconButton(
+        but = IconButton(
             icon = button_icon, size_hint_x = self.button_size_x
         )
-        icon.disabled = button_disabled
-        icon.icon_color = [0,0,0,0] if icon.disabled else fg_color
-        icon.color = [0,0,0,0] if icon.disabled else fg_color
-        icon.bg_color = [0,0,0,0] if icon.disabled else icon.bg_color
+        but.disabled = button_disabled
+        but.icon_color = [0,0,0,0] if but.disabled else fg_color
+        but.color = [0,0,0,0] if but.disabled else fg_color
+        but.fg_color = [0,0,0,0] if but.disabled else fg_color      
+        but.border_color = [0,0,0,0] if but.disabled else but.border_color
+        but.bg_color = [0,0,0,0] if but.disabled else but.bg_color
+        but.bg_color_normal = [0,0,0,0] if but.disabled else but.bg_color_normal
+        but.bg_color_press = [0,0,0,0] if but.disabled else but.bg_color_press
 
-        icon.bind(on_release = partial(self.func, button_callback, screen))
+        but.bind(on_release = partial(self.func, button_callback, screen, "right"))
 
-        return icon
+        return but
 
     def create_text_button(
         self, button_text, fg_color, button_disabled, button_callback, screen):
@@ -142,9 +145,12 @@ class FlexToolbar(BoxLayout):
         but.disabled = button_disabled
         but.fg_color = [0,0,0,0] if but.disabled else fg_color
         but.color = [0,0,0,0] if but.disabled else fg_color
+        but.border_color = [0,0,0,0] if but.disabled else but.border_color
         but.bg_color = [0,0,0,0] if but.disabled else but.bg_color
+        but.bg_color_normal = [0,0,0,0] if but.disabled else but.bg_color_normal
+        but.bg_color_press = [0,0,0,0] if but.disabled else but.bg_color_press
 
-        but.bind(on_release = partial(self.func, button_callback, screen))
+        but.bind(on_release = partial(self.func, button_callback, screen, "left"))
 
         return but
 

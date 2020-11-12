@@ -4,12 +4,16 @@ from kivy.clock import Clock
 from kivy.uix.textinput import TextInput
 from kivy.properties import (
     StringProperty, ListProperty, NumericProperty, 
-	BooleanProperty)
+	BooleanProperty, ObjectProperty)
 from kivy.metrics import sp, dp
 
 from kivy.core.window import Window
 from kivy.utils import get_hex_from_color
 from ..icons import md_icons
+
+from kivy.uix.textinput import TextInput
+
+from pprint import PrettyPrinter
 
 class AutoComplete(TextInput):
 	background_color = ListProperty([1,1,1,1])
@@ -47,7 +51,7 @@ class FlatText(TextInput):
 		super().__init__(**kwargs)
 
 class FlexText(TextInput):
-	font_size = NumericProperty(sp(20))
+	font_size = NumericProperty(sp(15))
 	radius = ListProperty([10,])
 	border_weigth = NumericProperty(1)
 
@@ -62,6 +66,58 @@ class FlexText(TextInput):
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
+
+class FlexPrettyText(FlexText):
+    pp = ObjectProperty(None)
+    data = ListProperty()
+    wid = NumericProperty(100)
+    depth = NumericProperty(None)
+    indent = NumericProperty(2)
+    compat = BooleanProperty(False)
+    sort_dicts = BooleanProperty(True)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.indent = kwargs.get("indent", self.indent)
+        self.wid = kwargs.get("wid", self.wid)
+        self.depth = kwargs.get("depth", self.depth)
+        self.data = kwargs.get("data", self.data)
+        self.compat = kwargs.get("compat", self.compat)
+        self.sort_dicts = kwargs.get("sort_dicts", self.sort_dicts)
+
+        self.pp = PrettyPrinter(
+            stream=self, indent=self.indent, 
+            width=self.wid, depth=self.depth, 
+            compact=self.compat, sort_dicts=self.sort_dicts)
+
+    def write(self, *args):
+        self.text += args[0]
+
+    def ppri(self):
+        if self.pp:
+            self.pp.pprint(self.data)
+
+    def on_pp(self, obj, val):
+        self.ppri()
+
+    def on_data(self, obj, val):
+        self.ppri()
+
+    def on_indent(self, obj, val):
+        self.ppri()
+
+    def on_wid(self, obj, val):
+        self.ppri()
+
+    def on_depth(self, obj, val):
+        self.ppri()
+
+    def on_compat(self, obj, val):
+        self.ppri()
+
+    def on_sort_dicts(self, obj, val):
+        self.ppri()
 
 Builder.load_string('''
 <-FlexText>:
@@ -97,6 +153,10 @@ Builder.load_string('''
 			rounded_rectangle: [self.x, self.y, self.width, self.height, *self.radius]
 			width: root.border_weigth
 
+<FlexPrettyText>:
+    # text_size: root.size
+    halign: "left"
+    valign: "middle"
 
 <FlatText>:
 	canvas.before:

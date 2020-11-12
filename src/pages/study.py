@@ -2,6 +2,7 @@ from src.helpers.imports import *
 
 from plyer import tts
 from difflib import SequenceMatcher
+from kivy_modules.widget.label import FlexLabel
 
 class Study(Screen):
     app = None

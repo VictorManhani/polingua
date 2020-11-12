@@ -10,11 +10,6 @@ from kivy.properties import (
 	ListProperty, BooleanProperty, ObjectProperty, StringProperty
 )
 
-class FlexLayout(BoxLayout):
-	bg_color = ListProperty([1,1,1,1])
-	source = StringProperty("")
-	radius = ListProperty([0])
-
 class NewBoxLayout(BoxLayout):
 	radius = ListProperty([0])
 
@@ -62,10 +57,14 @@ class SmartIcon(Widget):
 		elif not self.collide_point(*pos) and not self.selected:
 			self.hover_color = [0,0,0,0]
 
+class FlexLayout(BoxLayout):
+	bg_color = ListProperty([1,1,1,1])
+	source = StringProperty("")
+	radius = ListProperty([0])
+
 Builder.load_string('''
 <FlexLayout>:
 	orientation: 'vertical'
-	radius: [0,]
 	padding: dp(5)
 	spacing: dp(5)
 	canvas.before:
@@ -138,7 +137,7 @@ Builder.load_string('''
 			pos: root.pos
 			size: root.size
 			source: root.source
-			radius: root.radius
+			# radius: root.radius
 
 # <BoxLayout>:
 # 	background_color: [1,1,1,1]

@@ -18,7 +18,7 @@ class FlexSpinner(RectangularRippleBehavior, Spinner, HoverBehavior):
     background_down = ''
     color = ListProperty([0.0, 0.4471, 0.8235, 1])
     font_size = sp(20)
-    radius = [10,]
+    radius = ListProperty([10,])
     bg_color = ListProperty([1,1,1,1])
     border_color = ListProperty([0.0, 0.4471, 0.8235, 1])
     border_weigth = NumericProperty(dp(1))
