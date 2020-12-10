@@ -7,10 +7,10 @@ from kivy.properties import (
     NumericProperty, ListProperty
 )
 from json import dumps
-from pprint import PrettyPrinter
+from kivy_modules.behavior.textbehavior import Prettify
 
 class FlexLabel(Label):
-    font_size = NumericProperty(sp(20))
+    font_size = NumericProperty(sp(15))
     bold = BooleanProperty(False)
     radius = ListProperty([0])
     halign = StringProperty('center')
@@ -28,57 +28,9 @@ class FlexLabel(Label):
     def on_fg_color(self, obj, val):
         self.color = val
 
-class FlexPrettyLabel(FlexLabel):
-    pp = ObjectProperty(None)
-    data = ListProperty([])
-    wid = NumericProperty(50)
-    depth = NumericProperty(10)
-    indent = NumericProperty(2)
-    compat = BooleanProperty(False)
-    sort_dicts = BooleanProperty(True)
-
+class FlexPrettyLabel(FlexLabel, Prettify):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        self.indent = kwargs.get("indent", self.indent)
-        self.wid = kwargs.get("wid", self.wid)
-        self.depth = kwargs.get("depth", self.depth)
-        self.data = kwargs.get("data", self.data)
-        self.compat = kwargs.get("compat", self.compat)
-        self.sort_dicts = kwargs.get("sort_dicts", self.sort_dicts)
-
-        self.pp = PrettyPrinter(
-            stream=self, indent=self.indent, 
-            width=self.wid, depth=self.depth, 
-            compact=self.compat, sort_dicts=self.sort_dicts)
-
-    def write(self, *args):
-        self.text += args[0]
-
-    def ppri(self):
-        if self.pp:
-            self.pp.pprint(self.data)
-
-    def on_pp(self, obj, val):
-        self.ppri()
-
-    def on_data(self, obj, val):
-        self.ppri()
-
-    def on_indent(self, obj, val):
-        self.ppri()
-
-    def on_wid(self, obj, val):
-        self.ppri()
-
-    def on_depth(self, obj, val):
-        self.ppri()
-
-    def on_compat(self, obj, val):
-        self.ppri()
-
-    def on_sort_dicts(self, obj, val):
-        self.ppri()
 
 class ScrollableLabel(ScrollView):
     text = StringProperty('')

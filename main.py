@@ -29,7 +29,7 @@ class PolinguaApp(App):
         super().__init__(**kwargs)
         self.store = MStore()
         # os.path.dirname(os.path.abspath(__file__))
-        self.store.store_load(os.path.join("src", "databases", "words.json"))
+        self.store.load(os.path.join("src", "databases", "words.json"))
 
     @mainthread
     def switch_screen(self, screen, direction, transition=None):

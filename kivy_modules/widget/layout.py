@@ -62,11 +62,14 @@ class FlexLayout(BoxLayout):
 	source = StringProperty("")
 	radius = ListProperty([0])
 
+class FlexBox(FlexLayout):
+    pass
+
 Builder.load_string('''
 <FlexLayout>:
 	orientation: 'vertical'
-	padding: dp(5)
-	spacing: dp(5)
+	padding: [2,2,2,2]
+	spacing: dp(2)
 	canvas.before:
 		Color:
 			rgba: root.bg_color

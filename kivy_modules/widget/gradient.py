@@ -29,7 +29,7 @@ except:
 from itertools import chain
 from random import choice, random, randint
 
-class LabelGradient(Factory.Label):
+class FlexLabelGradient(Factory.Label):
     grad = ObjectProperty(None)
     color = ListProperty([1,1,1,1])
     radius = ListProperty([10,])
@@ -54,7 +54,7 @@ class LabelGradient(Factory.Label):
         self.grad.blit_buffer(buf, colorfmt='rgba', bufferfmt='ubyte')
         self.canvas.ask_update()
 
-class ButtonGradient(Factory.Label, ButtonBehavior):
+class FlexButtonGradient(Factory.Label, ButtonBehavior):
     background_normal = ''
     background_down = ''
     background_color = [0,0,0,0]
@@ -65,7 +65,7 @@ class ButtonGradient(Factory.Label, ButtonBehavior):
     gradient_orientation = OptionProperty('vertical', options = ['horizontal', 'vertical'])
 
     def __init__(self, **kwargs):
-        super(ButtonGradient, self).__init__(**kwargs)
+        super(FlexButtonGradient, self).__init__(**kwargs)
         Clock.schedule_once(self.start)
 
     def start(self, evt):
@@ -89,14 +89,14 @@ class ButtonGradient(Factory.Label, ButtonBehavior):
             self.blitter(self.buf_down)
             self.dispatch('on_press')
             return True
-        return super(ButtonGradient, self).on_touch_down(touch)
+        return super(FlexButtonGradient, self).on_touch_down(touch)
 
     def on_touch_up(self, touch):
         if self.collide_point(*touch.pos):
             self.blitter(self.buf_normal)
             self.dispatch('on_release')
             return True
-        return super(ButtonGradient, self).on_touch_up(touch)
+        return super(FlexButtonGradient, self).on_touch_up(touch)
 
     def on_release(self, *args):
     	pass
@@ -110,7 +110,7 @@ class ButtonGradient(Factory.Label, ButtonBehavior):
         self.grad.blit_buffer(buf, colorfmt='rgba', bufferfmt='ubyte')
         self.canvas.ask_update()
 
-class HoverGradient(HoverBehavior, Factory.Label):
+class FlexHoverGradient(HoverBehavior, Factory.Label):
     grad = ObjectProperty(None) # texture object
     radius = ListProperty([10]) # canvas curvature
     color = ListProperty([1,1,1,1]) # text color
@@ -149,7 +149,7 @@ class HoverGradient(HoverBehavior, Factory.Label):
         self.grad.blit_buffer(buf, colorfmt='rgba', bufferfmt='ubyte')
         self.canvas.ask_update()
 
-class RandomGradient(Factory.Label):
+class FlexRandomGradient(Factory.Label):
     grad = ObjectProperty(None)
     color = ListProperty([1,1,1,1])
     radius = ListProperty([10,])
@@ -175,7 +175,7 @@ class RandomGradient(Factory.Label):
         # blit the buffer
         self.grad.blit_buffer(self.buf_normal, colorfmt='rgba', bufferfmt='ubyte')
 
-class RadialHoverGradient(HoverBehavior, Factory.Label):
+class FlexRadialHoverGradient(HoverBehavior, Factory.Label):
     grad = ObjectProperty(None) # texture object
     radius = ListProperty([10]) # canvas curvature
     color = ListProperty([1,1,1,1]) # text color
@@ -229,7 +229,7 @@ class RadialHoverGradient(HoverBehavior, Factory.Label):
         self.grad.blit_buffer(buf, colorfmt='rgba', bufferfmt='ubyte')
         self.canvas.ask_update()
 
-class Gradient(EventDispatcher):
+class FlexGradient(EventDispatcher):
     grad = ObjectProperty(None)
     color = ListProperty([1,1,1,1])
     radius = ListProperty([0,])
@@ -255,14 +255,14 @@ class Gradient(EventDispatcher):
         self.grad.blit_buffer(buf, colorfmt='rgba', bufferfmt='ubyte')
         self.canvas.ask_update()
 
-class FlexAnchorGradient(Factory.AnchorLayout, Gradient):
+class FlexAnchorGradient(Factory.AnchorLayout, FlexGradient):
     pass
 
-class FlexBoxGradient(Factory.BoxLayout, Gradient):
+class FlexBoxGradient(Factory.BoxLayout, FlexGradient):
     orientation = "vertical"
 
 Builder.load_string("""
-<LabelGradient>:
+<FlexLabelGradient>:
     canvas.before:
         # draw the gradient below the normal Label Texture
         Color:
@@ -273,7 +273,7 @@ Builder.load_string("""
             pos: root.pos#int(root.center_x - root.texture_size[0] / 2.), int(root.center_y - root.texture_size[1] / 2.)
             radius: root.radius
 
-<ButtonGradient>:
+<FlexButtonGradient>:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
@@ -287,7 +287,7 @@ Builder.load_string("""
             pos: int(root.center_x - root.texture_size[0] / 2.), int(root.center_y - root.texture_size[1] / 2.)
             radius: root.radius
 
-<HoverGradient>:
+<FlexHoverGradient>:
     canvas.before:
         Color:
             rgba: [1,1,1,1]
@@ -297,7 +297,7 @@ Builder.load_string("""
             pos: root.pos
             radius: root.radius
 
-<RandomGradient>:
+<FlexRandomGradient>:
     canvas.before:
         Color:
             rgba: [1,1,1,1]
@@ -307,7 +307,7 @@ Builder.load_string("""
             pos: root.pos
             radius: root.radius
 
-<RadialHoverGradient>:
+<FlexRadialHoverGradient>:
     canvas.before:
         Color:
             rgba: [1,1,1,1]
@@ -317,7 +317,7 @@ Builder.load_string("""
             pos: root.pos
             radius: root.radius
 
-<Gradient>:
+<FlexGradient>:
     canvas.before:
         Color:
             rgba: [1,1,1,1]
@@ -328,17 +328,21 @@ Builder.load_string("""
             radius: root.radius
 
 <FlexBoxGradient>:
+    bg_color: [0,0,0,0]
+    source: ""
+    gradient: [[1,1,1,1],[.9,.9,.9,1]]
+    gradient_orientation: "horizontal"
 
 <FlexAnchorGradient>:
 
 """)
 
 if __name__ == '__main__':
-    from kivy.app import App
+    from kivy_modules.app import FlexApp
     from kivy.lang import Builder
     from kivy.clock import Clock
     
-    class GradientApp(App):
+    class GradientApp(FlexApp):
         def get_random_colors(self):
             colors = [
                 [random(),random(),random(),1],
@@ -364,29 +368,29 @@ BoxLayout:
             height: self.minimum_height
             padding: dp(5)
             spacing: dp(5)
-            LabelGradient:
-                text: "Gradient Label"
+            FlexLabelGradient:
+                text: "Flex Gradient Label"
                 size_hint: [1, None]
                 height: 80
                 font_size: 20
                 gradient_orientation: app.get_orientation()
                 gradient: app.get_random_colors()
-            ButtonGradient:
-                text: "Gradient Button"
+            FlexButtonGradient:
+                text: "Flex Gradient Button"
                 size_hint: [1, None]
                 height: 80
                 font_size: 20
                 gradient_orientation: app.get_orientation()
                 gradient: app.get_random_colors()
-            HoverGradient:
-                text: "Hover Button"
+            FlexHoverGradient:
+                text: "Flex Hover Button"
                 size_hint: [1, None]
                 height: 80
                 font_size: 20
                 gradient_orientation: app.get_orientation()
                 gradient: app.get_random_colors()
-            RandomGradient:
-                text: "Random Button"
+            FlexRandomGradient:
+                text: "Flex Random Button"
                 size_hint: [1, None]
                 height: 80
                 font_size: 20
@@ -401,12 +405,12 @@ BoxLayout:
                     [1.000, 0.494, 0.024, 1.000], \
                     [1.000, 0.847, 0.463, 1.000]]
                 Label:
-                    text: "Layout Gradient"
+                    text: "Flex Box Gradient"
 ''')
 
             kv.ids.container.add_widget(
-                RadialHoverGradient(
-                    text = f"Radial Hover Gradient", size_hint = [1, None],
+                FlexRadialHoverGradient(
+                    text = f"Flex Radial Hover Gradient", size_hint = [1, None],
                     border_color_normal = [0,.7,.7,1],
                     center_color_normal = [.3,.3,.3,1],
                     height = 300, font_size = 20

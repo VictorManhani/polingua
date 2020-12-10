@@ -1,29 +1,40 @@
-from kivy.app import App
+from typing import List
 from kivy.uix.progressbar import ProgressBar
 from kivy.uix.widget import Widget
 from kivy.core.text import Label as CoreLabel
 from kivy.lang.builder import Builder
-from kivy.graphics import Color, Ellipse, Rectangle
+from kivy.graphics import Color, Ellipse, Rectangle, RoundedRectangle
 from kivy.clock import Clock
-from kivy.properties import (NumericProperty, AliasProperty, 
-                             ListProperty, OptionProperty, BooleanProperty,
-                             BoundedNumericProperty, ReferenceListProperty)
+from kivy.properties import (
+    NumericProperty, AliasProperty, ListProperty,
+    OptionProperty, BooleanProperty, BoundedNumericProperty, 
+    ReferenceListProperty, ObjectProperty)
 
 import random
 
 class CircularProgressBar(ProgressBar):
+    thickness = NumericProperty(40)
+    label = ObjectProperty(None)
+    texture_size = ObjectProperty(None)
+    max = NumericProperty(100)
+    min = NumericProperty(0)
+    value = NumericProperty(0)
 
     def __init__(self, **kwargs):
-        super(CircularProgressBar, self).__init__(**kwargs)
-
+        super().__init__(**kwargs)
         # Set constant for the bar thickness
-        self.thickness = 40
+        self.thickness = kwargs.get("thickness", self.thickness)
 
         # Create a direct text representation
         self.label = CoreLabel(text="0%", font_size=self.thickness)
 
         # Initialise the texture_size variable
-        self.texture_size = None
+        self.texture_size = kwargs.get("texture_size", self.texture_size)
+
+        # GET VALUES NEW OR DEFAULT
+        self.max = kwargs.get("max", self.max)
+        self.min = kwargs.get("min", self.min)
+        self.value = kwargs.get("value", self.value)
 
         # Refresh the text
         self.refresh_text()
@@ -86,7 +97,7 @@ class TrackLoadProgressBar(Widget):
     orientation = OptionProperty('horizontal', options=('vertical', 'horizontal'))
     padding = NumericProperty('16sp') # default: 16sp
 
-    value_track_width = NumericProperty('6dp')
+    value_track_width = NumericProperty('10dp')
 
     value_track = BooleanProperty(True)
     value_track_color = ListProperty([1, 0, 0, 1])
@@ -253,38 +264,133 @@ class TrackLoadProgressBar(Widget):
             self.value_pos = touch.pos
             return True
 
+class FlexProgressBar(Widget):
+    value = NumericProperty(0)
+    min = NumericProperty(1)
+    max = NumericProperty(100)
+    radius = ListProperty([5])
+    size_y = NumericProperty(24)
+
+    bg_color = ListProperty([1,1,1,1])
+    bar_color = ListProperty([.2,.2,1,1])
+
+    _bg_color = ObjectProperty(None)
+    _bar_color = ObjectProperty(None)
+    bg_rect = ObjectProperty(None)
+    bar_rect = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        self._value = 0.
+        super().__init__(**kwargs)
+        self.value = kwargs.get("value", self.value)
+        self.max = kwargs.get("max", self.max)
+        self.min = kwargs.get("min", self.min)
+
+        with self.canvas.before:
+            self._bg_color = Color(rgba=self.bg_color)
+            self.bg_rect = RoundedRectangle(
+                pos=[self.x, self.center_y - 12], 
+                radius=self.radius, 
+                size=[self.width, self.size_y])
+            self._bar_color = Color(rgba=self.bar_color)
+            self.bar_rect = RoundedRectangle(
+                pos=[self.x, self.center_y - 12], 
+                radius=self.radius, 
+                size=[self.width * (self.value / float(self.max)) if self.max else 0, self.size_y])
+
+        self.bind(
+            value=self.draw, width=self.draw, height=self.draw,
+            bg_color=self.draw, bar_color=self.draw)
+
+    def draw(self, *args):
+        self._bg_color.rgba = self.bg_color
+        self.bg_rect.pos = [self.x, self.center_y - 12]
+        self.bg_rect.radius = self.radius
+        self.bg_rect.size = [self.width, self.size_y]
+
+        self._bar_color.rgba = self.bar_color
+        self.bar_rect.pos = [self.x, self.center_y - 12]
+        self.bar_rect.radius = self.radius
+        self.bar_rect.size = [
+            self.width * (self.value / float(self.max)) \
+                if self.max else 0, self.size_y]
+
 Builder.load_string("""
-<TrackLoadProgressBar>:
+# <TrackLoadProgressBar>: #TODO #TOREVISE
+    # canvas:
+    #     Color:
+    #         rgba: root.bar_color
+    #     RoundedRectangle:
+    #         radius: root.radius
+    #         pos: root.pos[0] + self.padding / 2, root.pos[1]
+    #         # pos: self.x + self.padding / 2, self.center_y - 12
+    #         size: root.size[0] - self.padding, root.size[1] / 3
+    #     Color:
+    #         rgba: root.loading_value_track_color if self.loading_value_track and self.orientation == 'horizontal' else [1, 1, 1, 0]
+    #     Line:
+    #         width: self.value_track_width
+    #         points: self.x + self.padding, self.center_y - self.height / 3, self.loading_value_pos[0], self.center_y - self.height / 3
+    #     Color:
+    #         rgba: root.value_track_color if self.value_track and self.orientation == 'horizontal' else [1, 1, 1, 0]
+    #     Line:
+    #         width: self.value_track_width
+    #         points: self.x + self.padding - dp(2), self.center_y - self.height / 3, self.value_pos[0], self.center_y - self.height / 3
+    #     Color:
+    #         rgba: root.value_track_color if self.value_track and self.orientation == 'vertical' else [1, 1, 1, 0]
+    #     Line:
+    #         width: self.value_track_width
+    #         points: self.center_x, self.y + self.padding, self.center_x, self.value_pos[1]
+    #     Color:
+    #         rgb: 1, 1, 1
+    # Widget:
+    #     canvas.before:
+    #         Color:
+    #             rgba: root.cursor_color
+    #         RoundedRectangle:
+    #             pos: (root.value_pos[0] - root.cursor_width / 2, root.center_y - (root.cursor_height / 2 + root.height / 3)) if root.orientation == 'horizontal' else (root.center_x - root.cursor_width / 2, root.value_pos[1] - root.cursor_height / 2)
+    #             size: root.cursor_size
+    #             radius: root.cursor_radius
+
+<-TrackLoadProgressBar>:
+    centralize: 4
+    value_track_width: '6dp'
     canvas:
         Color:
             rgba: root.bar_color
         RoundedRectangle:
-            # radius: self.border_horizontal if self.orientation == 'horizontal' else self.border_vertical # 
-            # pos: (self.x + self.padding, self.center_y - self.width / 2) if self.orientation == 'horizontal' else (self.center_x - self.width / 2, self.y + self.padding)
-            # size: (self.width - self.padding * 2, self.width) if self.orientation == 'horizontal' else (self.width, self.height - self.padding * 2)
             radius: root.radius
-            pos: root.pos[0] + self.padding / 2, root.pos[1]
-            size: root.size[0] - self.padding, root.size[1] / 3
-
-        # RoundedRectangle:
-        #     pos: self.x, self.center_y - 12
-        #     size: self.width * (self.value / float(self.max)) if self.max else 0, 24
-        #     radius: root.radius
+            pos: [self.x + self.padding / 2, self.center_y - 12]
+            size: [root.size[0] - self.padding, self.value_track_width + 10]
         Color:
-            rgba: root.loading_value_track_color if self.loading_value_track and self.orientation == 'horizontal' else [1, 1, 1, 0]
+            rgba: root.loading_value_track_color \
+                  if self.loading_value_track and self.orientation == 'horizontal' \
+                  else [1, 1, 1, 0]
         Line:
             width: self.value_track_width
-            points: self.x + self.padding, self.center_y - self.height / 3, self.loading_value_pos[0], self.center_y - self.height / 3
+            points: [self.x + self.padding, \
+                     self.center_y - self.centralize, \
+                     self.loading_value_pos[0], \
+                     self.center_y - self.centralize]
         Color:
-            rgba: root.value_track_color if self.value_track and self.orientation == 'horizontal' else [1, 1, 1, 0]
+            rgba: root.value_track_color \
+                if self.value_track and self.orientation == 'horizontal' \
+                else [1, 1, 1, 0]
         Line:
             width: self.value_track_width
-            points: self.x + self.padding - dp(2), self.center_y - self.height / 3, self.value_pos[0], self.center_y - self.height / 3
+            points: [self.x + self.padding - dp(2), \
+                     self.center_y - self.centralize, \
+                     self.value_pos[0], \
+                     self.center_y - self.centralize]
         Color:
-            rgba: root.value_track_color if self.value_track and self.orientation == 'vertical' else [1, 1, 1, 0]
+            rgba: root.value_track_color \
+                  if self.value_track and self.orientation == 'vertical' \
+                  else [1, 1, 1, 0]
         Line:
             width: self.value_track_width
-            points: self.center_x, self.y + self.padding, self.center_x, self.value_pos[1]
+            points: [self.center_x, \
+                     self.center_y - self.centralize, \
+                     self.center_x, \
+                     self.center_y - self.centralize]
         Color:
             rgb: 1, 1, 1
     Widget:
@@ -292,64 +398,52 @@ Builder.load_string("""
             Color:
                 rgba: root.cursor_color
             RoundedRectangle:
-                pos: (root.value_pos[0] - root.cursor_width / 2, root.center_y - (root.cursor_height / 2 + root.height / 3)) if root.orientation == 'horizontal' else (root.center_x - root.cursor_width / 2, root.value_pos[1] - root.cursor_height / 2)
+                pos: (root.value_pos[0] - root.cursor_width / 2, self.parent.center_y-15) \
+                      if root.orientation == 'horizontal' \
+                      else (root.center_x - root.cursor_width / 2, root.value_pos[1] - root.cursor_height / 2)
                 size: root.cursor_size
                 radius: root.cursor_radius
+
+<FlexProgressBar>:
 """)
 
-class Main(App):
-    # Simple animation to show the circular progress bar in action
-    def animate(self, dt):
-        cpb = self.root.ids["cpb"]
-        tlpb = self.root.ids["tlpb"]
-        if tlpb.value < 100:
-            tlpb.value += 1
-            tlpb.loading_value += 3
-            cpb.set_value(tlpb.value)
-        else:
-            tlpb.value = 0
-            tlpb.loading_value = 0
-            cpb.set_value(tlpb.value)
-
-    # Simple layout for easy example
-    def build(self):
-        container = Builder.load_string('''
-FloatLayout:
-    orientation: "vertical"
-    canvas.before:
-        Color:
-            rgba: [0,0,0,1]
-        Rectangle:
-            pos: self.pos
-            size: self.size
-    CircularProgressBar:
-        id: cpb
-        size_hint: None, None
-        size: 150, 150
-        pos_hint: {"center_x": .5, "center_y": .7}
-        max: 100
-    BoxLayout:
-        size_hint: [1, .1]
-        pos_hint: {"center_x": .5, "center_y": .4}
-        canvas.before:
-            Color:
-                rgba: [.2,.2,.2,1]
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        TrackLoadProgressBar:
-            id: tlpb
-            pos_hint: {"center_x": .5, "center_y": .8}
-            min: 0
-            max: 100
-            value: 0
-    Widget:
-        size_hint: 1, .3
-''')
-
-        # Animate the progress bar
-        Clock.schedule_interval(self.animate, 0.1)
-        return container
-
 if __name__ == '__main__':
+    from kivy.app import App
+    from kivy.core.window import Window
+    Window.size = (320,400)
+    from kivy.uix.boxlayout import BoxLayout
+
+    class Main(App):
+        tpb = None
+        cpb = None
+        fpb = None
+
+        # Simple animation to show the circular progress bar in action
+        def animate(self, dt):
+            if self.tpb.value < 100:
+                self.tpb.value += 1
+                self.tpb.loading_value += 3
+                self.cpb.set_value(self.tpb.value)
+                self.fpb.value = self.tpb.value
+            else:
+                self.tpb.value = 0
+                self.tpb.loading_value = 0
+                self.cpb.set_value(self.tpb.value)
+                self.fpb.value = 0
+
+        def build(self):
+            root = BoxLayout(orientation="vertical")
+
+            self.tpb = TrackLoadProgressBar(size_hint_y=.1, min=0, max=100, value=20)
+            self.cpb = CircularProgressBar(size_hint_y=.8, min=0, max=100, value=50)
+            self.fpb = FlexProgressBar(size_hint_y=.1, min=0, max=100, value=50)
+
+            root.add_widget(self.tpb)
+            root.add_widget(self.cpb)
+            root.add_widget(self.fpb)
+
+            # Animate the progress bar
+            Clock.schedule_interval(self.animate, 0.1)
+            return root
+
     Main().run()

@@ -10,16 +10,52 @@ class MStore:
     sort_keys = False
 
     def __init__(self, *args, **kwargs):
-        # self.filename = kwargs.get("filename", "")
+        """Manipulate a file as python dict:
+            - use load and save to manipulate file
+            - make dict operations as:
+              * a['b'] = 'c'
+              * del a['b']
+        """
+        self.filename = kwargs.get("filename", "")
         self.indent = kwargs.get("indent", None)
         self.sort_keys = kwargs.get("sort_keys", False)
+        if self.filename:
+            self.load(self.filename)
+
+    def load(self, filename=""):
+        """Get the file and open as dict, if not exists, create it."""
+        try:
+            if not self.filename:
+                self.filename = filename
+
+            if not os.path.isfile(self.filename):
+                self.save()
+
+            with open(self.filename, 'r', encoding="utf-8") as fd:
+                self._data = fd.read()
+                if not self._data:
+                    self._data = "{}"
+                self._data = loads(self._data)
+        except Exception as e:
+            raise Exception(f"Error {str(e)}")
+
+    def save(self):
+        """Save dict in file."""
+        try:
+            with open(self.filename, 'w', encoding="utf-8") as fd:
+                dump(
+                    self._data, fd, ensure_ascii = False,
+                    indent=self.indent, sort_keys=self.sort_keys)
+            return {"success": True}
+        except Exception as e:
+            return {"error": str(e)}
 
     def __repr__(self):
         return str(self._data)
 
     def __setitem__(self, key, val):
         self._data[key] = val
-        self.store_save()
+        self.save()
 
     def __getitem__(self, key):
         return self.get(key)
@@ -36,8 +72,6 @@ class MStore:
     def __iter__(self):
         for key in self.keys():
             yield key
-
-
 
     def get(self, key):
         '''Get the key-value pairs stored at `key`. If the key is not found, a
@@ -60,40 +94,11 @@ class MStore:
         '''
         return self.store_count()
 
-
-
     def store_get(self, key):
         return self._data[key]
 
     def store_exists(self, key):
         return key in self._data
-
-    def store_load(self, filename):
-        """Get the file and open as dict, if not exists, create it."""
-        try:
-            self.filename = filename
-
-            if not os.path.isfile(self.filename):
-                self.store_save()
-
-            with open(self.filename, 'r', encoding="utf-8") as fd:
-                self._data = fd.read()
-                if not self._data:
-                    self._data = "{}"
-                self._data = loads(self._data)
-        except Exception as e:
-            raise Exception(f"Error {str(e)}")
-
-    def store_save(self):
-        """Save dict in file."""
-        try:
-            with open(self.filename, 'w', encoding="utf-8") as fd:
-                dump(
-                    self._data, fd, ensure_ascii = False,
-                    indent=self.indent, sort_keys=self.sort_keys)
-            return {"success": True}
-        except Exception as e:
-            return {"error": str(e)}
 
     def store_put(self, key, value):
         self._data[key] = value
@@ -103,7 +108,7 @@ class MStore:
     def store_delete(self, key):
         del self._data[key]
         self._is_changed = True
-        self.store_save()
+        self.save()
         return True
 
     def store_find(self, filters):

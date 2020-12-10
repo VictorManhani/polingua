@@ -3,6 +3,7 @@ from src.helpers.imports import *
 from plyer import tts
 from difflib import SequenceMatcher
 from kivy_modules.widget.label import FlexLabel
+from kivy_modules.widget.button import FlexIconButton
 
 class Study(Screen):
     app = None
@@ -123,11 +124,11 @@ Builder.load_string("""
                     size_hint: [1, .1]
                     padding: 0
                     # spacing: 0
-                    IconButton:
+                    FlexIconButton:
                         icon: "turtle"
                         on_release:
                             app.reproduce(en.text, "en")
-                    IconButton:
+                    FlexIconButton:
                         icon: "volume-high"
                         on_release:
                             app.reproduce(en.text, "en")
@@ -138,7 +139,7 @@ Builder.load_string("""
                     on_release:
                         self.parent.parent.page = 1
             FlexLayout:
-                IconButton:
+                FlexIconButton:
                     icon: "cellphone-sound"
                     size_hint: [1, .1]
                     on_release:
@@ -156,7 +157,7 @@ Builder.load_string("""
                 id: attempt
                 size_hint_x: .9
                 hint_text: "attempt translation"
-            IconButton:
+            FlexIconButton:
                 size_hint_x: .1
                 icon: "send"
                 on_release:
